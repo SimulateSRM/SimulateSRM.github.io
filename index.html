@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./fovtransform.js" defer></script>
+    <script src="./script.js" defer></script>
+</head>
+<body>
+    <!-- Top bar - Shared settings -->
+    <nav class="container-fluid d-flex align-items-baseline bg-light position-fixed top-0 start-0 shadow-sm top-navbar">
+        <div class="d-flex flex-nowrap align-items-middle py-2 ps-1 pe-4">
+            <label for="sza-range" class="form-label fs-6 text-nowrap">Solar zenith angle:</label>
+            <div class="dropdown ms-1">
+                <button class="btn btn-secondary dropdown-toggle btn-sm bg-white text-dark border-secondary-subtle" type="button" id="sza-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    29°
+                </button>
+                <div class="dropdown-menu">
+                    <input type="range" class="form-range p-2" min="0" max="2" step="1" value="0" style="vertical-align: middle;" id="sza-range">
+                </div>
+            </div>
+        </div>
+        <div class="py-2 px-4">
+            <div class="btn-group" role="group" id="view-btn-group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="view" id="btnradio-cylindrical" autocomplete="off" checked>
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-cylindrical">Cylindrical</label>
+
+                <input type="radio" class="btn-check" name="view" id="btnradio-polar" autocomplete="off">
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-polar">Polar</label>
+
+                <input type="radio" class="btn-check" name="view" id="btnradio-charts" autocomplete="off">
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-charts">Charts</label>
+
+                <input type="radio" class="btn-check" name="view" id="btnradio-fov" autocomplete="off">
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-fov">FOW</label>
+            </div>
+        </div>
+        <div class="py-2 px-4">
+            <div class="btn-group" role="group" id="comp-btn-group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="comparison-type" id="btnradio-single" autocomplete="off" checked>
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-single">Single</label>
+                
+                <input type="radio" class="btn-check" name="comparison-type" id="btnradio-sbs" autocomplete="off">
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-sbs">Side by side</label>
+
+                <input type="radio" class="btn-check" name="comparison-type" id="btnradio-toggle" autocomplete="off">
+                <label class="btn btn-sm btn-outline-primary text-nowrap" for="btnradio-toggle">Toggle</label>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Side panel -->
+            <div class="col-3 bg-light pt-4 ps-3 h-100 sidebar"">
+                <!-- Field of view config -->
+                <div class="row" id="row-config-fov">
+                    <div class="col">
+                        <div class="my-2">
+                            Altitude = <span id="altitude-value">0</span>°
+                            <input type="range" class="form-range" min="0" max="180" step="1" value="90" id="altitude-range"></input>
+                            Azimuth = <span id="azimuth-value">0</span>°
+                            <input type="range" class="form-range" min="0" max="359" step="1" value="0" id="azimuth-range"></input>
+                            Roll = <span id="roll-value">0</span>°
+                            <input type="range" class="form-range" min="0" max="359" step="1" value="0" id="roll-range"></input>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+                <!-- Config A -->
+                <div class="row" id="row-config-a">
+                    <div class="col">
+                        <span class="my-2" id="config-a-title"></span>
+                        <div class="my-2">
+                            <label for="aerosol1-dropdown" class="form-label">Aerosol:</label>
+                            <select class="form-select form-select-sm d-inline border-secondary-subtle" id="aerosol1-dropdown" style="max-width: 13ch;">
+                                <option selected value="0">H&#x2082;SO&#x2084;</option>
+                                <option value="1">CaCO&#x2083;</option>
+                                <option value="2">Diamond</option>
+                            </select>
+                        </div>
+                        <div class="my-2">
+                            <label for="radforce1-range" class="form-label">Radiative Forcing:</label>
+                            <div class="dropdown d-inline">
+                                <button class="btn btn-secondary dropdown-toggle btn-sm bg-white text-dark border-secondary-subtle" type="button" id="radforce1-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    0 W/m<sup>2</sup>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <input type="range" class="form-range p-2" min="0" max="3" step="1" value="0" style="vertical-align: middle;" id="radforce1-range">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-2">
+                            <label for="tropo1-range" class="form-label">Tropospheric AOD:</label>
+                            <div class="dropdown d-inline">
+                                <button class="btn btn-secondary dropdown-toggle btn-sm bg-white text-dark border-secondary-subtle" type="button" id="tropo1-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    0.001
+                                </button>
+                                <div class="dropdown-menu">
+                                    <input type="range" class="form-range p-2" min="0" max="3" step="1" value="0" style="vertical-align: middle;" id="tropo1-range">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Swap button -->
+                <div class="row py-4 d-none" id="row-config-swap">
+                    <div class="col-4"><hr></div>
+                    <div class="col-4 text-center">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-swap">Swap</button>
+                    </div>
+                    <div class="col-4"><hr></div>
+                </div>
+                <!-- Config B -->
+                <div class="row d-none" id="row-config-b">
+                    <div class="col">
+                        <span class="my-2" id="config-a-title"><strong>Config B</strong></span>
+                        <div class="my-2">
+                            <label for="aerosol2-dropdown" class="form-label">Aerosol:</label>
+                            <select class="form-select form-select-sm d-inline border-secondary-subtle" id="aerosol2-dropdown" style="max-width: 13ch;">
+                                <option selected value="0">H&#x2082;SO&#x2084;</option>
+                                <option value="1">CaCO&#x2083;</option>
+                                <option value="2">Diamond</option>
+                            </select>
+                        </div>
+                        <div class="my-2">
+                            <label for="radforce2-range" class="form-label">Radiative Forcing:</label>
+                            <div class="dropdown d-inline">
+                                <button class="btn btn-secondary dropdown-toggle btn-sm bg-white text-dark border-secondary-subtle" type="button" id="radforce2-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    0 W/m<sup>2</sup>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <input type="range" class="form-range p-2" min="0" max="3" step="1" value="0" style="vertical-align: middle;" id="radforce2-range">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-2">
+                            <label for="tropo2-range" class="form-label">Tropospheric AOD:</label>
+                            <div class="dropdown d-inline">
+                                <button class="btn btn-secondary dropdown-toggle btn-sm bg-white text-dark border-secondary-subtle" type="button" id="tropo2-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    0.001
+                                </button>
+                                <div class="dropdown-menu">
+                                    <input type="range" class="form-range p-2" min="0" max="3" step="1" value="0" style="vertical-align: middle;" id="tropo2-range">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Images (2 by 2 grid) -->
+            <div class="col" id="images-col">
+                <div class="row pt-4 ps-2" id="row-a">
+                    <div class="col">
+                        <div class="row mb-4">
+                            <div class="col d-none" id="col-img-1a">
+                                <div class="img-wrapper">
+                                    <div class="img-title" id="img-1a-title"></div>
+                                    <img id="image1a" src="" alt="Image 1a" class="img-fluid" style="max-height: 80vh;">
+                                </div>
+                            </div> 
+                            <div class="col d-none" id="col-img-1b">
+                                <div class="img-wrapper">
+                                    <div class="img-title" id="img-1b-title"></div>
+                                    <img id="image1b" src="" alt="Image 1b" class="img-fluid" style="max-height: 80vh;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col d-none" id="col-img-2a">
+                                <div class="img-wrapper">
+                                    <div class="img-title" id="img-2a-title"></div>
+                                    <img id="image2a" src="" alt="Image 2a" class="img-fluid" style="max-height: 80vh;">
+                                </div>
+                            </div> 
+                            <div class="col d-none" id="col-img-2b">
+                                <div class="img-wrapper">
+                                    <div class="img-title" id="img-2b-title"></div>
+                                    <img id="image2b" src="" alt="Image 2b" class="img-fluid" style="max-height: 80vh;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Canvases (2 by 1 grid). Used to display field of view renders -->
+            <div class="col d-none" id="canvas-col">
+                <div class="row pt-4 ps-2" id="row-canvas-a">
+                    <div class="img-wrapper">
+                        <canvas id="canvas-a" class="" width="1" height="1"></canvas>
+                    </div>
+                </div>
+                <div class="row pt-4 ps-2" id="row-canvas-b">
+                    <div class="img-wrapper">
+                        <canvas id="canvas-b" class="" width="1" height="1"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
