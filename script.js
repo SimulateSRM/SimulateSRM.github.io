@@ -19,9 +19,9 @@ const tropoAODMap = {
 }
 
 const aerosolMap = {
-    '0': 'H2SO4',
-    '1': 'CaCO3',
-    '2': 'Diamond'
+    '0': 'h2so4',
+    '1': 'caco3',
+    '2': 'diamond'
 }
 
 const szaRange = document.getElementById("sza-range");
