@@ -12,10 +12,10 @@ const rfMap = {
 }
 
 const tropoAODMap = {
-    '0': 0.034,
-    '1': 0.080,
-    '2': 0.223,
-    '3': 0.657
+    '0': '0.034',
+    '1': '0.080',
+    '2': '0.223',
+    '3': '0.657'
 }
 
 const aerosolMap = {
@@ -248,8 +248,8 @@ async function updateImages() {
         }
     }
     else if (imageType === "cyl") {
-        img1a.src = `Images/allsky_rgb_${imageType}16_${aerosol1}_rf${rf1}_tr${tropo1.toString().replace(".", "")}_sz${sza}.png`;
-        img2a.src = `Images/allsky_rgb_${imageType}16_${aerosol2}_rf${rf2}_tr${tropo2.toString().replace(".", "")}_sz${sza}.png`;
+        img1a.src = `Images/allsky_rgb_${imageType}16_${aerosol1}_rf${rf1}_tr${tropo1.replace(".", "")}_sz${sza}.png`;
+        img2a.src = `Images/allsky_rgb_${imageType}16_${aerosol2}_rf${rf2}_tr${tropo2.replace(".", "")}_sz${sza}.png`;
         colImg1a.classList.remove("d-none");
         btnRadioSbs.checked ? colImg2a.classList.remove("d-none") : colImg2a.classList.add("d-none");
         colImg1b.classList.add("d-none");
@@ -260,8 +260,8 @@ async function updateImages() {
         imgTitle2b.innerHTML = "";
     }
     else if (imageType === "polar") {
-        img1a.src = `Images/allsky_rgb_${imageType}16_${aerosol1}_rf${rf1}_tr${tropo1.toString().replace(".", "")}_sz${sza}.png`;
-        img1b.src = `Images/allsky_rgb_${imageType}16_${aerosol2}_rf${rf2}_tr${tropo2.toString().replace(".", "")}_sz${sza}.png`;
+        img1a.src = `Images/allsky_rgb_${imageType}16_${aerosol1}_rf${rf1}_tr${tropo1.replace(".", "")}_sz${sza}.png`;
+        img1b.src = `Images/allsky_rgb_${imageType}16_${aerosol2}_rf${rf2}_tr${tropo2.replace(".", "")}_sz${sza}.png`;
         colImg1a.classList.remove("d-none");
         btnRadioSbs.checked ? colImg1b.classList.remove("d-none") : colImg1b.classList.add("d-none");
         colImg2a.classList.add("d-none");
